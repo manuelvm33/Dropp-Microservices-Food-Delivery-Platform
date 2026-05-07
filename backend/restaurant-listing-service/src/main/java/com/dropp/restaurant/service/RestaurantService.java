@@ -1,9 +1,10 @@
 package com.dropp.restaurant.service;
 
-import com.dropp.restaurant.repo.RestaurantRepo;
 import com.dropp.restaurant.dto.RestaurantDTO;
 import com.dropp.restaurant.entity.Restaurant;
+import com.dropp.restaurant.exception.RestaurantNotFoundException;
 import com.dropp.restaurant.mapper.RestaurantMapper;
+import com.dropp.restaurant.repo.RestaurantRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class RestaurantService {
     private final RestaurantRepo restaurantRepo;
 
-    public RestaurantService(RestaurantRepo restaurantRepo){
+    public RestaurantService(RestaurantRepo restaurantRepo) {
         this.restaurantRepo = restaurantRepo;
     }
 
@@ -26,8 +27,9 @@ public class RestaurantService {
         restaurantRepo.save(restaurant);
         return RestaurantMapper.INSTANCE.mapRestaurantToRestaurantDTO(restaurant);
     }
+
     public RestaurantDTO fetchRestaurantById(Long id) {
-        Restaurant restaurant = restaurantRepo.findById(id).orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        Restaurant restaurant = restaurantRepo.findById(id).orElseThrow(() -> new RestaurantNotFoundException(id));
         return RestaurantMapper.INSTANCE.mapRestaurantToRestaurantDTO(restaurant);
     }
 }
