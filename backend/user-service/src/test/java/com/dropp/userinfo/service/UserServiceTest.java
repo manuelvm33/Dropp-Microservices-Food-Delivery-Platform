@@ -32,12 +32,12 @@ public class UserServiceTest {
     UserService userService;
 
     private UserDto buildUserDto() {
-        return new UserDto(USER_ID, "Manuel Pineda", "manuel@clarisa.co", "3101234567",
+        return new UserDto(USER_ID, "Manuel Pineda", "manuelpineda@gmail.com", "3101234567",
                 "Address 1", "Compton");
     }
 
     private User buildUser() {
-        return new User(USER_ID, "Manuel Pineda", "manuel@clarisa.co", "3101234567",
+        return new User(USER_ID, "Manuel Pineda", "manuelpineda@gmail.com", "3101234567",
                 "Address 1", "Compton");
     }
 
