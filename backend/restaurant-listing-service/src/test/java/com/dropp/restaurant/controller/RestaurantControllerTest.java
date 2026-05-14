@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false"
 })
-public class RestaurantControllerTest {
+class RestaurantControllerTest {
     private static final Long RESTAURANT_ID = 1L;
 
     @Autowired
@@ -49,7 +49,7 @@ public class RestaurantControllerTest {
     }
 
     @Test
-    public void fetchRestaurants_shouldReturnMappedDtoPage() throws Exception {
+    void fetchRestaurants_shouldReturnMappedDtoPage() throws Exception {
         List<RestaurantDTO> mockRestaurants = buildListOfRestaurantDto();
         Page<RestaurantDTO> mockPage = new PageImpl<>(mockRestaurants);
         when(restaurantService.fetchRestaurants(0, 10)).thenReturn(mockPage);

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-public class RestaurantServiceTest {
+class RestaurantServiceTest {
     private static final Long RESTAURANT_ID = 1L;
 
     @Mock
@@ -55,7 +55,7 @@ public class RestaurantServiceTest {
     }
 
     @Test
-    public void fetchRestaurants_shouldReturnMappedDtoPage() {
+    void fetchRestaurants_shouldReturnMappedDtoPage() {
         // Arrange
         List<Restaurant> mockRestaurants = buildListOfRestaurant();
         PageRequest pageRequest = PageRequest.of(0, 10);
