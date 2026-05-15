@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OrderServiceTest {
+class OrderServiceTest {
 
     private static final String USER_SERVICE_URL = "http://USER-SERVICE/user/";
     private static final Integer USER_ID = 1;

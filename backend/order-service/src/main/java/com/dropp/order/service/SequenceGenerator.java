@@ -23,6 +23,6 @@ public class SequenceGenerator {
                 new Update().inc("sequence", 1),
                 options().returnNew(true).upsert(true),
                 Sequence.class);
-        return nonNull(counter) ? counter.getSequence() : 1L;
+        return nonNull(counter) ? counter.getCurrentValue() : 1L;
     }
 }

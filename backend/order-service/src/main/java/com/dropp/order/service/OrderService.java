@@ -23,6 +23,7 @@ public class OrderService {
         this.sequenceGenerator = sequenceGenerator;
         this.restTemplate = restTemplate;
     }
+
     public OrderDto saveOrder(OrderFrontDto orderFrontDto) {
         Long orderId = sequenceGenerator.generateNextOrderId();
         UserDto userDto = fetchDetailsFromUserId(orderFrontDto.getUserId());

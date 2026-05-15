@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false"
 })
-public class OrderControllerTest {
+class OrderControllerTest {
 
     private static final Long ORDER_ID = 100L;
     private static final Integer USER_ID = 1;

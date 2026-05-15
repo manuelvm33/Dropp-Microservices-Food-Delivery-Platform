@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: "aws-parameterstore:/dropp/prod/"
+  data:
+    mongodb:
+      uri: ${mongo-uri}
+
+server:
+  port: 9094
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${eureka-url}
