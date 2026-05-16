@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false"
 })
-public class UserControllerTest {
+class UserControllerTest {
 
     private static final Long USER_ID = 1L;
 

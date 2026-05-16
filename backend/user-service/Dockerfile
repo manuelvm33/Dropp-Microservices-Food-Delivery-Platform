@@ -5,15 +5,14 @@ COPY pom.xml .
 RUN mvn -q dependency:go-offline
 
 COPY src ./src
-RUN mvn -q clean package
+RUN mvn -q clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy AS runtime
 WORKDIR /app
 
 RUN useradd -r -u 1001 appuser
-
 COPY --from=build /workspace/target/*.jar /app/app.jar
 
 USER appuser
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILE:-local} -jar /app/app.jar"]
