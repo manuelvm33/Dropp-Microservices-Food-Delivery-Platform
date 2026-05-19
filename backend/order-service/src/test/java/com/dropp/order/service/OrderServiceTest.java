@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.bson.assertions.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -108,5 +109,25 @@ class OrderServiceTest {
 
         // if  RestTemplate fails, the repo never should be called
         verify(orderRepo, never()).save(any(Order.class));
+    }
+    @Test
+    void saveOrder_whenUserServiceReturnsNull_shouldPersistOrderWithNullUser() {
+        // Arrange — el RestTemplate retorna null (usuario no encontrado)
+        OrderFrontDto frontDto = buildOrderFrontDto();
+
+        when(sequenceGenerator.generateNextOrderId()).thenReturn(ORDER_ID);
+        when(restTemplate.getForObject(USER_SERVICE_URL + USER_ID, UserDto.class))
+                .thenReturn(null);
+        when(orderRepo.save(any(Order.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        OrderDto result = orderService.saveOrder(frontDto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(ORDER_ID, result.getId());
+        assertNull(result.getUserDto());
+        verify(orderRepo, times(1)).save(any(Order.class));
     }
 }

@@ -102,4 +102,25 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.error").value(
                         "User service is currently unavailable. Please try again later."));
     }
+    @Test
+    void saveOrder_whenUnexpectedErrorOccurs_shouldReturn500() throws Exception {
+        // Arrange
+        OrderFrontDto frontDto = buildOrderFrontDto();
+        when(orderService.saveOrder(any(OrderFrontDto.class)))
+                .thenThrow(new RuntimeException("Unexpected database failure"));
+
+        // Act & Assert
+        mockMvc.perform(post("/order/saveOrder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(frontDto)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void saveOrder_whenRequestBodyIsMissing_shouldReturn400() throws Exception {
+        // Act & Assert — sin body, Spring lanza HttpMessageNotReadableException
+        mockMvc.perform(post("/order/saveOrder")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }
