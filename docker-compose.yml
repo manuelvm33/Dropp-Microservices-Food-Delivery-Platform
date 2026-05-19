@@ -1,0 +1,89 @@
+version: '3.8'
+
+networks:
+  dropp-network:
+    driver: bridge
+
+services:
+
+  eureka:
+    image: ${ECR_REGISTRY}/dropp/eureka:latest
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - dropp-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  api-gateway:
+    image: ${ECR_REGISTRY}/dropp/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  restaurant-listing-service:
+    image: ${ECR_REGISTRY}/dropp/restaurant-listing-service:latest
+    container_name: restaurant-listing-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  food-catalogue-service:
+    image: ${ECR_REGISTRY}/dropp/food-catalogue-service:latest
+    container_name: food-catalogue-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  user-service:
+    image: ${ECR_REGISTRY}/dropp/user-service:latest
+    container_name: user-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  order-service:
+    image: ${ECR_REGISTRY}/dropp/order-service:latest
+    container_name: order-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  frontend:
+    image: ${ECR_REGISTRY}/dropp/frontend:latest
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - dropp-network
+    depends_on:
+      - api-gateway

@@ -1,0 +1,74 @@
+name: Deploy Dropp to EC2
+
+on:
+  push:
+    branches: [main]
+
+env:
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  AWS_REGION: us-east-1
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push backend images
+        run: |
+          declare -A services=(
+            ["backend/eureka-server"]="dropp/eureka"
+            ["backend/api-gateway"]="dropp/api-gateway"
+            ["backend/restaurant-listing-service"]="dropp/restaurant-listing-service"
+            ["backend/food-catalog-service"]="dropp/food-catalogue-service"
+            ["backend/user-service"]="dropp/user-service"
+            ["backend/order-service"]="dropp/order-service"
+          )
+
+          for folder in "${!services[@]}"; do
+            ecr_name="${services[$folder]}"
+            echo "Building $folder → $ecr_name"
+            docker build -t $ECR_REGISTRY/$ecr_name:latest ./$folder
+            docker push $ECR_REGISTRY/$ecr_name:latest
+          done
+
+      - name: Build and push frontend image
+        run: |
+          docker build \
+            --build-arg API_URL=http://${{ secrets.EC2_HOST }}:8080 \
+            -t $ECR_REGISTRY/dropp/frontend:latest \
+            ./frontend/dropp
+          docker push $ECR_REGISTRY/dropp/frontend:latest
+
+      - name: Copy docker-compose to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "/app"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /app
+            aws ecr get-login-password --region us-east-1 | \
+              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            ECR_REGISTRY=${{ secrets.ECR_REGISTRY }} docker compose pull
+            ECR_REGISTRY=${{ secrets.ECR_REGISTRY }} docker compose up -d --remove-orphans
