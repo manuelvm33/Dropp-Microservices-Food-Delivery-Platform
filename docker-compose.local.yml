@@ -1,0 +1,82 @@
+version: '3.8'
+
+networks:
+  dropp-network:
+    driver: bridge
+
+services:
+
+  eureka:
+    build: ./backend/eureka-server
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - dropp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  restaurant-listing-service:
+    build: ./backend/restaurant-listing-service
+    container_name: restaurant-listing-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  food-catalogue-service:
+    build: ./backend/food-catalog-service
+    container_name: food-catalogue-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  user-service:
+    build: ./backend/user-service
+    container_name: user-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  order-service:
+    build: ./backend/order-service
+    container_name: order-service
+    networks:
+      - dropp-network
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/

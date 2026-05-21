@@ -44,12 +44,12 @@ jobs:
           done
 
       - name: Build and push frontend image
-        run: |
-          docker build \
-            --build-arg API_URL=http://${{ secrets.EC2_HOST }}:8080 \
-            -t $ECR_REGISTRY/dropp/frontend:latest \
-            ./frontend/dropp
-          docker push $ECR_REGISTRY/dropp/frontend:latest
+  run: |
+    docker build \
+      --build-arg EC2_HOST=${{ secrets.EC2_HOST }} \
+      -t $ECR_REGISTRY/dropp/frontend:latest \
+      ./frontend/dropp
+    docker push $ECR_REGISTRY/dropp/frontend:latest
 
       - name: Copy docker-compose to EC2
         uses: appleboy/scp-action@v0.1.4
