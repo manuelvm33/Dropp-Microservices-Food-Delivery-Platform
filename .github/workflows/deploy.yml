@@ -13,17 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push backend images
         run: |
@@ -50,24 +50,109 @@ jobs:
             ./frontend/dropp
           docker push $ECR_REGISTRY/dropp/frontend:latest
 
-      - name: Copy docker-compose to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml"
-          target: "/app"
-
       - name: Deploy on EC2
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /app
+            mkdir -p /app
+
+            cat > /app/docker-compose.yml << 'COMPOSE'
+            version: '3.8'
+
+            networks:
+              dropp-network:
+                driver: bridge
+
+            services:
+              eureka:
+                image: $ECR_REGISTRY/dropp/eureka:latest
+                container_name: eureka
+                ports:
+                  - "8761:8761"
+                networks:
+                  - dropp-network
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+                healthcheck:
+                  test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 5
+
+              api-gateway:
+                image: $ECR_REGISTRY/dropp/api-gateway:latest
+                container_name: api-gateway
+                ports:
+                  - "8080:8080"
+                networks:
+                  - dropp-network
+                depends_on:
+                  eureka:
+                    condition: service_healthy
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+
+              restaurant-listing-service:
+                image: $ECR_REGISTRY/dropp/restaurant-listing-service:latest
+                container_name: restaurant-listing-service
+                networks:
+                  - dropp-network
+                depends_on:
+                  eureka:
+                    condition: service_healthy
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+
+              food-catalogue-service:
+                image: $ECR_REGISTRY/dropp/food-catalogue-service:latest
+                container_name: food-catalogue-service
+                networks:
+                  - dropp-network
+                depends_on:
+                  eureka:
+                    condition: service_healthy
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+
+              user-service:
+                image: $ECR_REGISTRY/dropp/user-service:latest
+                container_name: user-service
+                networks:
+                  - dropp-network
+                depends_on:
+                  eureka:
+                    condition: service_healthy
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+
+              order-service:
+                image: $ECR_REGISTRY/dropp/order-service:latest
+                container_name: order-service
+                networks:
+                  - dropp-network
+                depends_on:
+                  eureka:
+                    condition: service_healthy
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+
+              frontend:
+                image: $ECR_REGISTRY/dropp/frontend:latest
+                container_name: frontend
+                ports:
+                  - "80:80"
+                networks:
+                  - dropp-network
+                depends_on:
+                  - api-gateway
+            COMPOSE
+
+            export ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}
             aws ecr get-login-password --region us-east-1 | \
-              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            ECR_REGISTRY=${{ secrets.ECR_REGISTRY }} docker compose pull
-            ECR_REGISTRY=${{ secrets.ECR_REGISTRY }} docker compose up -d --remove-orphans
+              docker login --username AWS --password-stdin $ECR_REGISTRY
+            cd /app
+            docker compose pull
+            docker compose up -d --remove-orphans
