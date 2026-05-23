@@ -87,7 +87,7 @@ jobs:
                 image: ${ECR_REGISTRY}/dropp/api-gateway:latest
                 container_name: api-gateway
                 ports:
-                  - "8080:8080"
+                  - "8081:8080"
                 networks:
                   - dropp-network
                 depends_on:
