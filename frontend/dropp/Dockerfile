@@ -10,9 +10,11 @@ RUN pnpm install
 COPY . .
 
 ARG EC2_HOST
-RUN sed -i "s|EC2_HOST_PLACEHOLDER|http://$EC2_HOST:8080|g" \
+RUN sed -i "s|EC2_HOST_PLACEHOLDER|http://$EC2_HOST:8081|g" \
     src/environments/environment.prod.ts
 
+# Agrega esto para verificar que el reemplazo funcionó
+RUN grep "EC2_HOST_PLACEHOLDER\|8081" src/environments/environment.prod.ts
 RUN pnpm run build --configuration=production
 
 FROM nginx:alpine

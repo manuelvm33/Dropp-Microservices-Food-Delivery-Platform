@@ -44,6 +44,7 @@ jobs:
 
       - name: Build and push frontend image
         run: |
+          echo "Building with EC2_HOST: ${{ secrets.EC2_HOST }}"
           docker build \
             --build-arg EC2_HOST=${{ secrets.EC2_HOST }} \
             -t $ECR_REGISTRY/dropp/frontend:latest \
