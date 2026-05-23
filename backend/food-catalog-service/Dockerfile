@@ -16,4 +16,4 @@ COPY --from=build /workspace/target/*.jar /app/app.jar
 
 USER appuser
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar"]

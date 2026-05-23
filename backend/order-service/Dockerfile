@@ -15,4 +15,4 @@ COPY --from=build /workspace/target/*.jar /app/app.jar
 
 USER appuser
 
-ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILE:-local} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar"]
