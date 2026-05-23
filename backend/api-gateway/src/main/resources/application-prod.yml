@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "aws-parameterstore:/dropp/prod/"
   cloud:
     gateway:
       server:
@@ -22,6 +20,6 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: ${eureka-url}
+      defaultZone: http://eureka:8761/eureka/
   instance:
     prefer-ip-address: true
