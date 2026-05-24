@@ -61,17 +61,14 @@ jobs:
           command_timeout: 30m
           script: |
             mkdir -p ~/app
-
-            cat > ~/app/docker-compose.yml << COMPOSE
+            cat > ~/app/docker-compose.yml << 'EOF'
             version: '3.8'
-
             networks:
               dropp-network:
                 driver: bridge
-
             services:
               eureka:
-                image: ${ECR_REGISTRY}/dropp/eureka:latest
+                image: ECRREGISTRY/dropp/eureka:latest
                 container_name: eureka
                 ports:
                   - "8761:8761"
@@ -84,9 +81,8 @@ jobs:
                   interval: 30s
                   timeout: 10s
                   retries: 5
-
               api-gateway:
-                image: ${ECR_REGISTRY}/dropp/api-gateway:latest
+                image: ECRREGISTRY/dropp/api-gateway:latest
                 container_name: api-gateway
                 ports:
                   - "8081:8080"
@@ -97,9 +93,8 @@ jobs:
                     condition: service_healthy
                 environment:
                   - SPRING_PROFILES_ACTIVE=prod
-
               restaurant-listing-service:
-                image: ${ECR_REGISTRY}/dropp/restaurant-listing-service:latest
+                image: ECRREGISTRY/dropp/restaurant-listing-service:latest
                 container_name: restaurant-listing-service
                 networks:
                   - dropp-network
@@ -108,9 +103,8 @@ jobs:
                     condition: service_healthy
                 environment:
                   - SPRING_PROFILES_ACTIVE=prod
-
               food-catalogue-service:
-                image: ${ECR_REGISTRY}/dropp/food-catalogue-service:latest
+                image: ECRREGISTRY/dropp/food-catalogue-service:latest
                 container_name: food-catalogue-service
                 networks:
                   - dropp-network
@@ -119,9 +113,8 @@ jobs:
                     condition: service_healthy
                 environment:
                   - SPRING_PROFILES_ACTIVE=prod
-
               user-service:
-                image: ${ECR_REGISTRY}/dropp/user-service:latest
+                image: ECRREGISTRY/dropp/user-service:latest
                 container_name: user-service
                 networks:
                   - dropp-network
@@ -130,9 +123,8 @@ jobs:
                     condition: service_healthy
                 environment:
                   - SPRING_PROFILES_ACTIVE=prod
-
               order-service:
-                image: ${ECR_REGISTRY}/dropp/order-service:latest
+                image: ECRREGISTRY/dropp/order-service:latest
                 container_name: order-service
                 networks:
                   - dropp-network
@@ -141,9 +133,8 @@ jobs:
                     condition: service_healthy
                 environment:
                   - SPRING_PROFILES_ACTIVE=prod
-
               frontend:
-                image: ${ECR_REGISTRY}/dropp/frontend:latest
+                image: ECRREGISTRY/dropp/frontend:latest
                 container_name: frontend
                 ports:
                   - "80:80"
@@ -151,17 +142,10 @@ jobs:
                   - dropp-network
                 depends_on:
                   - api-gateway
-            COMPOSE
-
+            EOF
+            sed -i "s|ECRREGISTRY|$ECR_REGISTRY|g" ~/app/docker-compose.yml
             aws ecr get-login-password --region us-east-1 | \
               docker login --username AWS --password-stdin $ECR_REGISTRY
-
             cd ~/app
-            nohup bash -c "docker compose down && \
-              docker system prune -f && \
-              docker compose pull && \
-              docker compose up -d --remove-orphans" \
-              > ~/deploy.log 2>&1 &
-
-            echo "Deploy running in background PID: $!"
-            echo "Monitor with: tail -f ~/deploy.log"
+            nohup bash -c "docker compose down && docker system prune -f && docker compose pull && docker compose up -d --remove-orphans" > ~/deploy.log 2>&1 &
+            echo "Deploy PID: $!"
