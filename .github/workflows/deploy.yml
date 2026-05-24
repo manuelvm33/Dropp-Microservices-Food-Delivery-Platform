@@ -58,6 +58,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: ECR_REGISTRY
+          command_timeout: 30m
           script: |
             mkdir -p ~/app
 
@@ -154,8 +155,13 @@ jobs:
 
             aws ecr get-login-password --region us-east-1 | \
               docker login --username AWS --password-stdin $ECR_REGISTRY
+
             cd ~/app
-            docker compose down
-            docker system prune -f
-            docker compose pull
-            docker compose up -d --remove-orphans
+            nohup bash -c "docker compose down && \
+              docker system prune -f && \
+              docker compose pull && \
+              docker compose up -d --remove-orphans" \
+              > ~/deploy.log 2>&1 &
+
+            echo "Deploy running in background PID: $!"
+            echo "Monitor with: tail -f ~/deploy.log"
