@@ -7,6 +7,3 @@ spring:
 eureka:
   instance:
     prefer-ip-address: true
-app:
-  cors:
-    allowed-origins: "*"
