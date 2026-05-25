@@ -45,7 +45,7 @@ jobs:
         run: |
           ./mvnw sonar:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=vars.TU_ORG_KEY \
+            -Dsonar.organization=vars.SONAR_ORG \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
   build-and-deploy:
