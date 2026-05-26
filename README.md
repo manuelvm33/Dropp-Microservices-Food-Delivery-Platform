@@ -14,7 +14,7 @@
 
 ## 🎬 Demo
 
-[![Watch Demo](docs/demo-thumbnail.png)](docs/demo.mp4)
+[![Watch Demo](docs/demo-thumbnail.png)](docs/demo-dropp.mp4)
 > End-to-end walkthrough: restaurant browsing, menu selection, cart checkout, and order persistence in MongoDB Atlas.
  
 ## 📋 Table of Contents
