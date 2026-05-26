@@ -13,16 +13,8 @@
 ---
 
 ## 🎬 Demo
-<p align="center">
-  <video src="docs/demo-drop.mp4"
-         controls
-         autoplay
-         loop
-         muted
-         width="900">
-  </video>
-</p>
-[![Watch Demo](docs/demo-thumbnail.png)](docs/demo-dropp.mp4)
+
+[![Watch Demo](docs/demo-thumbnail.png)](docs/demo.mp4https://github.com/user-attachments/assets/89cb6a28-bcdd-463f-94a8-824335c4db60)
 > End-to-end walkthrough: restaurant browsing, menu selection, cart checkout, and order persistence in MongoDB Atlas.
  
 ## 📋 Table of Contents
