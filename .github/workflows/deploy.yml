@@ -46,7 +46,7 @@ jobs:
           ./mvnw clean verify sonar:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.organization=manuelvm33 \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.branch.name=main
 
   build-and-deploy:
