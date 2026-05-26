@@ -1,9 +1,10 @@
-# Dropp 🍕 — Cloud-Native Food Delivery Platform
+# Dropp — Cloud-Native Food Delivery Platform
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.x-brightgreen?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.0.0-brightgreen?logo=spring&logoColor=white)](https://spring.io/projects/spring-cloud)
 [![Angular](https://img.shields.io/badge/Angular-21.2-red?logo=angular&logoColor=white)](https://angular.dev/)
 [![Docker](https://img.shields.io/badge/Docker-20.x%20%2F%20Compose-blue?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=manuelvm33_Dropp-Microservices-Food-Delivery-Platform&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=manuelvm33_Dropp-Microservices-Food-Delivery-Platform)
 [![AWS](https://img.shields.io/badge/AWS-EC2%20%2F%20ECR%20%2F%20Parameter%20Store-orange?logo=amazonwebservices&logoColor=white)](https://aws.amazon.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -11,19 +12,45 @@
 
 ---
 
+## 🎬 Demo
+
+[![Watch Demo](docs/demo-thumbnail.png)](docs/demo.mp4)
+> End-to-end walkthrough: restaurant browsing, menu selection, cart checkout, and order persistence in MongoDB Atlas.
+ 
 ## 📋 Table of Contents
 
-- [Architecture](#-architecture)
-- [Repository Structure](#-repository-structure)
-- [Tech Stack](#-tech-stack)
-- [Services Overview](#-services-overview)
-- [Environment Variables & Credentials](#-environment-variables--credentials)
-- [Local Development](#-local-development)
-- [Docker Usage](#-docker-usage)
-- [Testing & Code Quality](#-testing--code-quality)
-- [CI/CD & Deployment](#-cicd--deployment)
-- [Troubleshooting](#-troubleshooting)
-- [Future Improvements](#-future-improvements)
+- [Dropp — Cloud-Native Food Delivery Platform](#dropp--cloud-native-food-delivery-platform)
+  - [🎬 Demo](#-demo)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [🏗️ Architecture](#️-architecture)
+    - [System Architecture](#system-architecture)
+    - [End-to-End Workflow](#end-to-end-workflow)
+  - [📂 Repository Structure](#-repository-structure)
+  - [🛠️ Tech Stack](#️-tech-stack)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
+    - [DevOps \& Cloud](#devops--cloud)
+  - [📡 Services Overview](#-services-overview)
+    - [Microservice Reference](#microservice-reference)
+    - [API Endpoints](#api-endpoints)
+  - [🔒 Environment Variables \& Credentials](#-environment-variables--credentials)
+    - [AWS Parameter Store Keys](#aws-parameter-store-keys)
+    - [GitHub Actions Secrets (CD Pipeline)](#github-actions-secrets-cd-pipeline)
+  - [💻 Local Development](#-local-development)
+    - [Prerequisites](#prerequisites)
+    - [Step 1 — Set Up Databases](#step-1--set-up-databases)
+    - [Step 2 — Start the Backend Services](#step-2--start-the-backend-services)
+    - [Step 3 — Start the Angular Frontend](#step-3--start-the-angular-frontend)
+  - [🐳 Docker Usage](#-docker-usage)
+  - [🧪 Testing \& Code Quality](#-testing--code-quality)
+    - [Backend](#backend-1)
+    - [Frontend](#frontend-1)
+  - [🚀 CI/CD \& Deployment](#-cicd--deployment)
+    - [Pipeline Overview](#pipeline-overview)
+    - [What Happens on Each Push](#what-happens-on-each-push)
+  - [🔍 Troubleshooting](#-troubleshooting)
+  - [🔮 Future Improvements](#-future-improvements)
+  - [📄 License](#-license)
 
 ---
 
@@ -394,7 +421,16 @@ Dropp uses **SonarQube** to continuously analyze code quality across all microse
   -Dsonar.host.url=<your-sonar-url> \
   -Dsonar.login=<your-sonar-token>
 ```
+Each microservice is analyzed via **SonarCloud** on every push to `main`, scanning for code smells, bugs, vulnerabilities, and duplication. The quality gate enforces that no new issues are introduced before a deployment proceeds.
 
+| Service | Quality Gate | Coverage |
+| :--- | :--- | :--- |
+| User Service | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=dropp-user-ms&metric=alert_status)](https://sonarcloud.io/organizations/manuelvm33/projects) | ![Coverage](https://img.shields.io/badge/coverage->80%25-brightgreen) |
+| Restaurant Service | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=dropp-restaurant-ms&metric=alert_status)](https://sonarcloud.io/organizations/manuelvm33/projects) | ![Coverage](https://img.shields.io/badge/coverage->80%25-brightgreen) |
+| Food Catalog Service | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=dropp-foodcatalog-ms&metric=alert_status)](https://sonarcloud.io/organizations/manuelvm33/projects) | ![Coverage](https://img.shields.io/badge/coverage->80%25-brightgreen) |
+| Order Service | [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=dropp-order-service&metric=alert_status)](https://sonarcloud.io/organizations/manuelvm33/projects) | ![Coverage](https://img.shields.io/badge/coverage->80%25-brightgreen) |
+
+> Coverage figures are measured locally via JaCoCo. Click the JaCoCo badge at the top of this file to view the full report screenshot.
 ### Frontend
 
 **Unit Tests with Vitest**
